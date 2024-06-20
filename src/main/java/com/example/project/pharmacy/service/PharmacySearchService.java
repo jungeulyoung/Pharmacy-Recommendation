@@ -1,5 +1,6 @@
 package com.example.project.pharmacy.service;
 
+import com.example.project.pharmacy.cache.PharmacyRedisTemplateService;
 import com.example.project.pharmacy.dto.PharmacyDto;
 import com.example.project.pharmacy.entity.Pharmacy;
 import java.util.List;
@@ -14,9 +15,17 @@ import org.springframework.stereotype.Service;
 public class PharmacySearchService {
 
     private final PharmacyRepositoryService pharmacyRepositoryService;
+    private final PharmacyRedisTemplateService pharmacyRedisTemplateService;
 
     public List<PharmacyDto> searchPharmacyDtoList() {
+
         //redis
+        List<PharmacyDto> pharmacyDtoList = pharmacyRedisTemplateService.findAll();
+        if(!pharmacyDtoList.isEmpty()){
+            log.info("redis findAll success!");
+            return pharmacyDtoList;
+        }
+
 
         //database
         return pharmacyRepositoryService.findAll()
@@ -27,6 +36,7 @@ public class PharmacySearchService {
 
 
     private PharmacyDto convertToPharmacyDto(Pharmacy pharmacy) {
+
         return PharmacyDto.builder()
                 .id(pharmacy.getId())
                 .pharmacyAddress(pharmacy.getPharmacyAddress())
